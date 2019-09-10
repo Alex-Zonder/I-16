@@ -8,6 +8,7 @@ char buzzer_pin = A2;
 //                  Includes                  //
 #include "port.h"
 #include "tone_blink.h"
+#include "eeprom.h"
 
 
 //                  Device Settings                  //
@@ -43,17 +44,17 @@ void setup() {
   blinker.Blink(1,100);
 
   // Erase eeprom by AddrBut
-  /*if (!digitalRead(addrBut)) {
-    tone(speaker,330,50);
-    Blink(5,100);
+  if (!digitalRead(addrBut)) {
+    buzzer.Tone(330,50);
+    blinker.Blink(5,100);
     int xEe=0;
     for (int x=0; x<8; x++) {
       xEe=x*128;
       for (int y=xEe; y < 128+xEe ; y++) EEPROM.write(y,-1);
-      Blink(1,25);
+      blinker.Blink(1,25);
     }
-    Blink(2,100);
-  }*/
+    blinker.Blink(2,100);
+  }
 
   //memcpy(port_setts.pin, inputs, sizeof(inputs));
   //port[0].Init(port_setts.pin[0], OUTPUT, 1);
