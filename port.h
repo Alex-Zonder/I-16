@@ -8,13 +8,36 @@ class Port {
     // Maybe to output only //
     delay(1);
     if (p_state == -1) {
-      this->pin_state = digitalRead(this->pin);
+      this->pin_state = this->Read();
     }
     else {
       this->pin_state = p_state;
       this->Write(this->pin_state);
     }
   }
+
+
+  /*      R E A D      */
+  int ReadAnalog () {
+    return (int)((double)(analogRead(this->pin)-92)*1.0987);
+  }
+  bool Read () {
+    int state;
+    if (this->pin != A6 && this->pin != A7)
+      state = digitalRead(this->pin);
+    else {
+      state = this->ReadAnalog();
+      if (state <= this->analog.min_level)
+        state = 0;
+      else
+        state = 1;
+    }
+    return state;
+  }
+
+  /*bool ReadMode () {
+    return this->pin_mode;
+  }*/
 
 
   /*      W R I T E      */
@@ -34,22 +57,15 @@ class Port {
   }
 
 
-  /*      R E A D      */
-  bool Read () {
-    return digitalRead(this->pin);
-  }
-
-  /*bool ReadMode () {
-    return this->pin_mode;
-  }*/
-
+  /*      I S   C H A N G E D      */
   bool IsChanged () {
     bool changed = false;
     if (changed_time + change_time_out < millis()) {
-      if (this->pin_state != digitalRead(this->pin)) {
+      char state = this->Read();
+      if (this->pin_state != state) {
         changed = true;
-        this->pin_state = digitalRead(this->pin);
         changed_time = millis();
+        this->pin_state = state;
       }
     }
     return changed;
@@ -64,4 +80,10 @@ class Port {
 
   long change_time_out = 200;
   long changed_time;
+
+  struct Analog {
+    int min_level = 512;
+    int max_level = 512;
+  };
+  Analog analog;
 };
