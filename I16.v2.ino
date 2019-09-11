@@ -1,9 +1,11 @@
+char version[] = "2.b.0";
+char devName[] = "I16";
+
 //                  P O R T S                  //
 char rw485 = A3;
 char addrBut=A5, addrLed=A4;
 char buzzer_pin = A2;
 //char inputs[16]={2,3,4,5,6,7,8,9,10,11,12,13,A0,A1,A6,A7};
-
 
 //                  Includes                  //
 #include "port.h"
@@ -11,7 +13,7 @@ char buzzer_pin = A2;
 #include "eeprom.h"
 
 
-//                  Device Settings                  //
+//                  Ports Settings                  //
 Port port[16];
 struct Port_setts {
   //char pin[16];
@@ -50,7 +52,7 @@ void setup() {
     int xEe=0;
     for (int x=0; x<8; x++) {
       xEe=x*128;
-      for (int y=xEe; y < 128+xEe ; y++) EEPROM.write(y,-1);
+      for (int y=xEe; y < 128+xEe ; y++) eeprom.WriteByte(y,-1);
       blinker.Blink(1,25);
     }
     blinker.Blink(2,100);
