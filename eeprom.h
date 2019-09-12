@@ -2,6 +2,7 @@
 
 class Eeprom {
   public:
+  //          Write         //
   void WriteByte(int address, char value){
     EEPROM.write(address, value);
   }
@@ -20,28 +21,28 @@ class Eeprom {
     EEPROM.write(address + 3, one);
   }
 
+
+
+  //          Read         //
   char ReadByte(int address){
     char value = EEPROM.read(address);
     if (value == -1) value = 0;
     return value;
   }
   unsigned int ReadInt(int p_address) {
-    unsigned int value = 
+    int value = 
       ((EEPROM.read(p_address) << 0) & 0xFF) + 
       ((EEPROM.read(p_address+1) << 8) & 0xFF00);
     if (value == -1) value = 0;
     return value;
   }
   unsigned long ReadLong(int address) {
-    char four = EEPROM.read(address);
-    char three = EEPROM.read(address + 1);
-    char two = EEPROM.read(address + 2);
-    char one = EEPROM.read(address + 3);
-    unsigned long value = 
-      ((four << 0) & 0xFF) + 
-      ((three << 8) & 0xFFFF) + 
-      ((two << 16) & 0xFFFFFF) + 
-      ((one << 24) & 0xFFFFFFFF);
+    long four = EEPROM.read(address);
+    long three = EEPROM.read(address + 1);
+    long two = EEPROM.read(address + 2);
+    long one = EEPROM.read(address + 3);
+    
+    unsigned long value = ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
     if (value == -1) value = 0;
     return value;
   }
