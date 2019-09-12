@@ -18,8 +18,6 @@ char usartSoftEnable = 0;
 #include "eeprom.h"
 #include "usart.h"
 
-#include "main.h"
-
 //                  Ports Settings                  //
 Port port[16];
 struct Port_setts {
@@ -42,18 +40,22 @@ Port_setts port_setts;
 
 
 
+
+//------------------------------------------------//
 //                  Setup - Init                  //
+//------------------------------------------------//
+#include "main.h"
 void setup() { 
-  // Blink / BEEP //
+  //          Blink / BEEP          //
   buzzer.Init(buzzer_pin);
   blinker.Init(addrLed);
   blinker.Blink(1,100);
 
-  // Addr But/Led //
+  //          Addr But/Led          //
   pinMode(addrLed,OUTPUT);
   pinMode(addrBut,INPUT_PULLUP);
 
-  // Erase eeprom by AddrBut //
+  //          Erase eeprom by AddrBut          //
   if (!digitalRead(addrBut)) {
     buzzer.Tone(330,50);
     blinker.Blink(5,100);
@@ -76,24 +78,22 @@ void setup() {
   // Usart Gate: 5
   usartSoftEnable = eeprom.ReadByte(5);
 
-  //memcpy(port_setts.pin, inputs, sizeof(inputs));
-  //port[0].Init(port_setts.pin[0], OUTPUT, 1);
-  // Init Ports //
+  //          Init Ports          //
   for (int x=0; x<sizeof(port_setts.pin); x++) {
     int p_state = -1;
     if (port_setts.mode[x] == OUTPUT) p_state = 1;
     port[x].Init(port_setts.pin[x], port_setts.mode[x]);
   }
 
-  // Init Usart //
+  //          Init Usart          //
   usart.Init(usart.uSpeed, rw485);
-  // Usart SoftUsart
+  //          Init SoftUsart          //
   if (usartSoftEnable){
     softUsart.Init(port_setts.pin[10], port_setts.pin[11], 9600);
   }
-  usart.Send("Loaded");
 
-  // Start BEEP //
+  //          Start           //
+  usart.Send("Loaded");
   buzzer.Tone(440,50);
   delay(100);
   buzzer.Tone(440,50);
@@ -103,23 +103,36 @@ void setup() {
 
 
 
-//                  Main While                  //
+//------------------------------------------------//
+//                   Main While                   //
+//------------------------------------------------//
+char a2dTim = 0;
+int addrButTim = 0;
 void loop() {
-  // Checking inputs //
-  //for (int x=0; x<sizeof(port_setts.pin); x++){
-  for (int x=0; x<14; x++){
+  // Checking inputs (1-12) (Digital) //
+  for (int x=0; x<12; x++){
     if (port_setts.mode[x] == INPUT && port[x].IsChanged()) {
-      buzzer.Tone(440,50);
-      port[port_setts.inputsToOuts[x]].Change();
+      InputChanged (x);
     }
   }
- 
-  //   A D D R   //
+
+  // Checking inputs (13-16) (Analog) //
+  if (!a2dTim){
+    a2dTim=100;
+    for (int x=12; x<16; x++){
+      if (port_setts.mode[x] == INPUT && port[x].IsChanged()) {
+        InputChanged (x);
+      }
+    }
+  }
+  else a2dTim--;
+
+  //   A D D R E S S   //
   if (!digitalRead(addrBut)) {
     addrButTim++;
     if (addrButTim==15001) {
       // Disable usart !!!
-      //usart.Stop();
+      usart.Stop();
       
       buzzer.Tone(330,50);
       modNum=0;
@@ -139,7 +152,7 @@ void loop() {
     }
     else {
       // Enable usart !!!
-      //usart.Start();
+      usart.Start();
       
       // BEEP
       buzzer.Tone(440,50);
