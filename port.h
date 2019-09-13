@@ -1,5 +1,7 @@
 class Port {
   public:
+  char pin_state;
+
   /*      I N I T      */
   void Init (char p, char p_mode, char p_state = -1) {
     this->pin = p;
@@ -76,7 +78,6 @@ class Port {
   private:
   char pin;
   char pin_mode;
-  char pin_state;
 
   long change_time_out = 200;
   long changed_time;

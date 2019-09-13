@@ -9,6 +9,7 @@
 //sizeof(port_setts.pin)
 
 
+
 //---------------------------------------------------//
 //                 String from eeprom                //
 //---------------------------------------------------//
@@ -22,7 +23,7 @@ void SendComandFromEe (char comNum) {
     sprintf(value,"%c",EEPROM.read(comEeStart+x));
     if (value[0]!=-1) strcat(eeDataStr,value);
   }
-  usart.Send(eeDataStr,0);
+  usartManager.Send(eeDataStr, false);
 }
 char CompareComandWithEe (char * data, int comEeStart) {
   char dataIsCompare=0;
@@ -35,6 +36,7 @@ char CompareComandWithEe (char * data, int comEeStart) {
   }
   return dataIsCompare;
 }
+
 
 
 //---------------------------------------------------//
@@ -86,8 +88,8 @@ char * ConvIntToBytes(int val, char bytes) {
 void InputChanged (int num){
   buzzer.Tone(330, 50);
   
-  sprintf(usart.data.transmit, "I%s:%i", ConvIntToBytes(num+1,2), port[num].Read());
-  usart.Send(usart.data.transmit);
+  sprintf(usartManager.data.transmit, "I%s:%i", ConvIntToBytes(num+1,2), port[num].pin_state);
+  usartManager.Send(usartManager.data.transmit);
 
   port[port_setts.inputsToOuts[num]].Change();
   //CheckLinkToPort (num,0);

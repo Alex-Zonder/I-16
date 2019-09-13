@@ -86,14 +86,16 @@ void setup() {
   }
 
   //          Init Usart          //
-  usart.Init(usart.uSpeed, rw485);
+  usart.Init(usart.uSpeed);
   //          Init SoftUsart          //
   if (usartSoftEnable){
     softUsart.Init(port_setts.pin[10], port_setts.pin[11], 9600);
   }
+  //          Init UsartManager          //
+  usartManager.Init(rw485);
 
   //          Start           //
-  usart.Send("Loaded");
+  usartManager.Send("Loaded");
   buzzer.Tone(440,50);
   delay(100);
   buzzer.Tone(440,50);
