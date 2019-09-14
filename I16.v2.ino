@@ -88,9 +88,8 @@ void setup() {
   //          Init Usart          //
   usart.Init(usart.uSpeed);
   //          Init SoftUsart          //
-  if (usartSoftEnable){
+  if (usartSoftEnable)
     softUsart.Init(port_setts.pin[10], port_setts.pin[11], 9600);
-  }
   //          Init UsartManager          //
   usartManager.Init(rw485);
 
@@ -111,6 +110,11 @@ void setup() {
 char a2dTim = 0;
 int addrButTim = 0;
 void loop() {
+  // Read UsartManager //
+  if (usartManager.Read()) {
+    buzzer.Tone(440,50);
+  }
+
   // Checking inputs (1-12) (Digital) //
   for (int x=0; x<12; x++){
     if (port_setts.mode[x] == INPUT && port[x].IsChanged()) {
