@@ -110,22 +110,24 @@ void setup() {
 char a2dTim = 0;
 int addrButTim = 0;
 void loop() {
-  // Read UsartManager //
+  //      Read UsartManager     //
   if (usartManager.Read()) {
-    buzzer.Tone(440,50);
+    MakeAllData(usartManager.data.resaved);
   }
 
-  // Checking inputs (1-12) (Digital) //
+  //      Checking inputs (1-12) (Digital)      //
   for (int x=0; x<12; x++){
+    // If port is INPUT && Changed //
     if (port_setts.mode[x] == INPUT && port[x].IsChanged()) {
       InputChanged (x);
     }
   }
 
-  // Checking inputs (13-16) (Analog) //
+  //      Checking inputs (13-16) (Analog)      //
   if (!a2dTim){
     a2dTim=100;
     for (int x=12; x<16; x++){
+      // If port is INPUT && Changed //
       if (port_setts.mode[x] == INPUT && port[x].IsChanged()) {
         InputChanged (x);
       }
@@ -133,19 +135,21 @@ void loop() {
   }
   else a2dTim--;
 
-  //   A D D R E S S   //
+  //   A D D R E S S   by addrBut   //
   if (!digitalRead(addrBut)) {
     addrButTim++;
     if (addrButTim==15001) {
-      // Disable usart !!!
-      usart.Stop();
-      
+      // Disable usartManager //
+      usartManager.Stop();
+
+      // Start Change ModNum from 0 //
       buzzer.Tone(330,50);
       modNum=0;
       EEPROM.write(0,modNum);
       blinker.BlinkNum(modNum);
     }
     if (addrButTim==25001) {
+      // Plus ModNum //
       addrButTim=15002;
       modNum++;
       EEPROM.write(0,modNum);
@@ -154,17 +158,53 @@ void loop() {
   }
   else if (digitalRead(addrBut) && addrButTim) {
     if (addrButTim<15000) {
+      // Blink ModNum //
       blinker.BlinkNum(modNum);
     }
     else {
-      // Enable usart !!!
-      usart.Start();
+      // Enable usartManager //
+      usartManager.Start();
       
-      // BEEP
+      // BEEP //
       buzzer.Tone(440,50);
       delay(100);
       buzzer.Tone(440,50);
     }
     addrButTim=0;
+  }
+}
+
+
+
+
+
+//------------------------------------------------//
+//                   Make Data                    //
+//------------------------------------------------//
+//      Make All Data     //
+void MakeAllData (char * data) {
+  char oneCommand[50];
+  sprintf (oneCommand,"");
+  char oneByteStr[2];
+  for (int x=0; x<strlen(data); x++) {
+    sprintf(oneByteStr,"%c",data[x]);
+    strcat(oneCommand,oneByteStr);
+    // Make Command //
+    if (data[x]==';') {
+      MakeCommand (oneCommand);
+      sprintf (oneCommand,"");
+    }
+  }
+}
+
+//      Make Command      //
+void MakeCommand (char * data) {
+  // Test //
+  buzzer.Tone(440,50);
+  usartManager.Send(data, false);
+
+  //      If data is commsnd && modNum equale     //
+  if (data[0]=='$' && data[1]==((int)modNum/10)+0x30 && data[2]==((int)modNum%10)+0x30) {
+    buzzer.Tone(330,50);
   }
 }
